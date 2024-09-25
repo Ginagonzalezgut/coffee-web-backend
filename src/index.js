@@ -14,7 +14,6 @@ server.listen(port, () => {
   console.log("Server is running on port http://localhost:" + port);
 });
 
-console.log(process.env);
 async function getDBConnection() {
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
