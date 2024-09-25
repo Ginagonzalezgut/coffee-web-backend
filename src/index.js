@@ -60,6 +60,7 @@ server.get("/shops", async (req, res) => {
       results: result,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
@@ -81,6 +82,7 @@ server.get("/coffee/:id", async (req, res) => {
       results: result,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
