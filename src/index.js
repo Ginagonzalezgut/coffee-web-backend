@@ -9,7 +9,7 @@ server.use(cors());
 server.use(express.json());
 server.set("view engine", "ejs");
 
-const port = 5001;
+const port = process.env.PORT;
 server.listen(port, () => {
   console.log("Server is running on port http://localhost:" + port);
 });
