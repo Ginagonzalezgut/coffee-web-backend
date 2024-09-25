@@ -14,12 +14,13 @@ server.listen(port, () => {
   console.log("Server is running on port http://localhost:" + port);
 });
 
+console.log(process.env);
 async function getDBConnection() {
   const connection = await mysql.createConnection({
-    host: "localhost",
-    database: "coffee_web",
-    user: "root",
-    password: "Ginackck",
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
   });
   connection.connect();
   return connection;
