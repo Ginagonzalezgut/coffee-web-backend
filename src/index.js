@@ -157,3 +157,14 @@ server.get("/shop/:id", async (req, res) => {
     });
   }
 });
+
+server.get("/breweries", async (req, res) => {
+  const connection = await getDBConnection();
+  const queryBrewery = "SELECT * FROM shops WHERE fk_shop_type = ?";
+  const [result] = await connection.query(queryBrewery, [1]);
+  connection.end();
+  res.status(200).json({
+    status: "success",
+    results: result,
+  });
+});
