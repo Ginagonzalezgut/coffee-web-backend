@@ -133,6 +133,7 @@ server.post("/coffee", async (req, res) => {
     results: result,
   });
 });
+
 server.get("/shop/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -151,6 +152,7 @@ server.get("/shop/:id", async (req, res) => {
     });
   } catch (err) {
     console.log(err);
+
     res.status(500).json({
       status: "error",
       message: "Internal server error",
@@ -159,12 +161,45 @@ server.get("/shop/:id", async (req, res) => {
 });
 
 server.get("/breweries", async (req, res) => {
-  const connection = await getDBConnection();
-  const queryBrewery = "SELECT * FROM shops WHERE fk_shop_type = ?";
-  const [result] = await connection.query(queryBrewery, [1]);
-  connection.end();
-  res.status(200).json({
-    status: "success",
-    results: result,
-  });
+  try {
+    const connection = await getDBConnection();
+    const queryBrewery = "SELECT * FROM shops WHERE fk_shop_type = ?";
+    const [result] = await connection.query(queryBrewery, [1]);
+
+    connection.end();
+
+    res.status(200).json({
+      status: "success",
+      results: result,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+});
+
+server.get("/specialty-coffee-shops", async (req, res) => {
+  try {
+    const connection = await getDBConnection();
+    const querySpecialtyCoffee = "SELECT * FROM shops WHERE fk_shop_type = ?";
+    const [result] = await connection.query(querySpecialtyCoffee, [4]);
+
+    connection.end();
+
+    res.status(200).json({
+      status: "success",
+      results: result,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
 });
