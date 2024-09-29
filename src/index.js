@@ -203,3 +203,23 @@ server.get("/specialty-coffee-shops", async (req, res) => {
     });
   }
 });
+
+server.get("/brunch", async (req, res) => {
+  try {
+    const connection = await getDBConnection();
+    const queryBrunches = " SELECT * FROM shops WHERE fk_shop_type = ?";
+    const [result] = await connection.query(queryBrunches, [2]);
+    connection.end();
+    res.status(200).json({
+      status: "success",
+      results: result,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+});
