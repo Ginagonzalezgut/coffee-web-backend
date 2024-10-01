@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 
 require("dotenv").config();
 const server = express();
@@ -220,6 +223,37 @@ server.get("/brunch", async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Internal server error",
+    });
+  }
+});
+server.post("/register", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const connection = await getDBConnection();
+    const passwordHahsed = await bcrypt.hash(password, 10);
+    const queryAddUser =
+      "INSERT INTO users(username,email,password) VALUES (?,?,?)";
+    const [newUserResult] = await connection.query(queryAddUser, [
+      username,
+      email,
+      passwordHahsed,
+    ]);
+    connection.end();
+    res.status(201).json({
+      status: "success",
+    });
+  } catch (err) {
+    console.log(err);
+
+    let message = "Internal server error";
+
+    if (err.code === "ER_DUP_ENTRY") {
+      message = "User already exists";
+    }
+
+    res.status(500).json({
+      status: "error",
+      message,
     });
   }
 });
