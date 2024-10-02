@@ -3,7 +3,7 @@ const cors = require("cors");
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { validationResult } = require("express-validator");
+const { validationResult, query } = require("express-validator");
 
 require("dotenv").config();
 const server = express();
@@ -117,7 +117,9 @@ server.post("/coffee", async (req, res) => {
     shop,
     photo_url,
   } = req.body;
+
   const connection = await getDBConnection();
+
   const queryCoffee =
     "INSERT INTO coffee(name, altitude_min,altitude_max,provider,note,fk_country,fk_shops,photo_url)VALUES(?,?,?,?,?,?,?,?)";
   const [result] = await connection.query(queryCoffee, [
@@ -254,6 +256,40 @@ server.post("/register", async (req, res) => {
     res.status(500).json({
       status: "error",
       message,
+    });
+  }
+});
+server.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  const connection = await getDBConnection();
+  const queryEmail = "SELECT * FROM users WHERE email = ?";
+  const [userResult] = await connection.query(queryEmail, [email]);
+
+  connection.end();
+
+  if (userResult.length > 0) {
+    const isSamePassword = await bcrypt.compare(
+      password,
+      userResult[0].hashed_password
+    );
+
+    if (isSamePassword) {
+      const infoToken = {
+        email: userResult[0].email,
+        id_user: userResult[0].id_user,
+      };
+      const token = jwt.sign(infoToken, "clave_secreta", {
+        expiresIn: "1h",
+      });
+      res.status(200).json({
+        status: "true",
+        token: token,
+      });
+    }
+  } else {
+    res.status(403).json({
+      status: "false",
+      message: "Usuario no encontrado",
     });
   }
 });
