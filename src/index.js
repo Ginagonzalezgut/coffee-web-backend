@@ -165,6 +165,26 @@ server.get("/shop/:id", async (req, res) => {
   }
 });
 
+server.get("/gelato", async (req, res) => {
+  try {
+    const connection = await getDBConnection();
+    const queryGelato = "SELECT * FROM shops WHERE fk_shop_type = ?";
+    const [result] = await connection.query(queryGelato, [6]);
+
+    connection.end();
+
+    res.status(200).json({
+      status: "success",
+      results: result,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+});
 server.get("/breweries", async (req, res) => {
   try {
     const connection = await getDBConnection();
@@ -241,8 +261,18 @@ server.post("/register", async (req, res) => {
       passwordHahsed,
     ]);
     connection.end();
+
+    const infoToken = {
+      email: newUserResult[0].email,
+      id_user: newUserResult[0].id_user,
+    };
+    const token = jwt.sign(infoToken, "clave_secreta", {
+      expiresIn: "1h",
+    });
+
     res.status(201).json({
       status: "success",
+      token,
     });
   } catch (err) {
     console.log(err);
@@ -267,10 +297,12 @@ server.post("/login", async (req, res) => {
 
   connection.end();
 
+  console.log(userResult);
+
   if (userResult.length > 0) {
     const isSamePassword = await bcrypt.compare(
       password,
-      userResult[0].hashed_password
+      userResult[0].password
     );
 
     if (isSamePassword) {
@@ -282,13 +314,18 @@ server.post("/login", async (req, res) => {
         expiresIn: "1h",
       });
       res.status(200).json({
-        status: "true",
+        status: "success",
         token: token,
+      });
+    } else {
+      res.status(403).json({
+        status: "error",
+        message: "Credenciales inválidas",
       });
     }
   } else {
     res.status(403).json({
-      status: "false",
+      status: "error",
       message: "Usuario no encontrado",
     });
   }
