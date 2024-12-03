@@ -165,6 +165,18 @@ server.get("/shop/:id", async (req, res) => {
   }
 });
 
+server.get("/large-groups", async (req, res) => {
+  const connection = await getDBConnection();
+  const queryLargeGroups = "SELECT * FROM shops WHERE fk_shop_type = ?";
+  const [result] = await connection.query(queryLargeGroups, [3]);
+
+  connection.end();
+  res.status(200).json({
+    status: "success",
+    results: result,
+  });
+});
+
 server.get("/gelato", async (req, res) => {
   try {
     const connection = await getDBConnection();
