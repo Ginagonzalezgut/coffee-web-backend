@@ -219,6 +219,18 @@ server.get("/breweries", async (req, res) => {
   }
 });
 
+server.get("/rooftops", async (req, res) => {
+  const connection = await getDBConnection();
+  const queryRooftops = "SELECT * FROM shops WHERE fk_shop_type = ?";
+  const [result] = await connection.query(queryRooftops, [5]);
+  connection.end();
+
+  res.status(200).json({
+    status: "success",
+    results: result,
+  });
+});
+
 server.get("/specialty-coffee-shops", async (req, res) => {
   try {
     const connection = await getDBConnection();
